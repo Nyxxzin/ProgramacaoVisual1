@@ -32,12 +32,12 @@ namespace WebMvc.Controllers
             };
             //visualização dos dados
             return View(viewModel);
-        } 
+        }
 
         public IActionResult Create()
         {
             return View();
-        }    
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -45,10 +45,44 @@ namespace WebMvc.Controllers
         public IActionResult Create([Bind("Nome")]Pessoa newPessoa)
         {
             if (!ModelState.IsValid)
-            return View(newPessoa);
+                return View(newPessoa);
 
-            newPessoa.Id = pessoaList.Max(p => p.Id) +1;
+            newPessoa.Id = pessoaList.Max(p => p.Id) + 1;
             pessoaList.Add(newPessoa);
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Edit(int? id)
+        {
+            if (!id.HasValue)
+                return NotFound();
+
+            var pessoa = pessoaList
+                .FirstOrDefault(p => p.Id == id);
+
+            if (pessoa == null)
+                return NotFound();
+
+            return View(pessoa);
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+
+        public IActionResult Edit(
+            [Bind("Id, Nome")]Pessoa editPessoa)
+        {
+            if (!ModelState.IsValid)
+                return View(editPessoa);
+
+            var pessoaToEdit = pessoaList
+                .FirstOrDefault(p => p.Id == editPessoa.Id);
+
+            if (pessoaToEdit == null)
+                return NotFound();
+            pessoaToEdit.Nome = editPessoa.Nome;
+
             return RedirectToAction(nameof(Index));
         }
     }
